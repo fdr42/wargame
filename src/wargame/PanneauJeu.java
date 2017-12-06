@@ -524,7 +524,9 @@ try {
 	public void mouseEntered(MouseEvent e) {
 
 	}
+	public void mouseered(MouseEvent e) {
 
+	}
 	@Override
 	public void mouseExited(MouseEvent e) {
 		// TODO Auto-generated method stub
