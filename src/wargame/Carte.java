@@ -40,14 +40,8 @@ public class Carte implements ICarte, Serializable {
 	 * @throws Exception 
 	 */
 	@SuppressWarnings("unused")
-	Carte() throws Exception {
-		if (IConfig.LARGEUR_CARTE * IConfig.NB_PIX_CASE > 1000)
-			throw new Exception("Le plateau de jeu est trop grand, diminuez la taille des cases ou la largeur");
-		else if (IConfig.HAUTEUR_CARTE * IConfig.NB_PIX_CASE > 580)
-			throw new Exception("Le plateau de jeu est trop grand, diminuez la taille des cases ou la heuteur");
-		else if (IConfig.LARGEUR_CARTE * IConfig.NB_PIX_CASE < 350)
-			throw new Exception("Le plateau de jeu est trop petit, augmentez la taille des cases ou la largeur");
-
+	Carte() {
+	
 		int i, j, n = 0;
 		Position pos;
 		for (i = 0; i < IConfig.LARGEUR_CARTE; i++)
@@ -424,7 +418,13 @@ public class Carte implements ICarte, Serializable {
 	 * @param args
 	 * @throws Exception
 	 */
-	public static void main(String args[]) {
+	public static void main(String args[]) throws Exception {
+		if (IConfig.LARGEUR_CARTE * IConfig.NB_PIX_CASE > 1100)
+			throw new Exception("Le plateau de jeu est trop grand, diminuez la taille des cases ou la largeur");
+		else if (IConfig.HAUTEUR_CARTE * IConfig.NB_PIX_CASE > 610)
+			throw new Exception("Le plateau de jeu est trop grand, diminuez la taille des cases ou la heuteur");
+		else if (IConfig.LARGEUR_CARTE * IConfig.NB_PIX_CASE < 350)
+			throw new Exception("Le plateau de jeu est trop petit, augmentez la taille des cases ou la largeur");
 
 	
 		// ajoute un listener : ici le listener est cette classe
@@ -435,7 +435,7 @@ public class Carte implements ICarte, Serializable {
 
 		fenetre.setTitle("WARGAME");
 		fenetre.setBackground(Color.white);
-		fenetre.setSize(IConfig.LARGEUR_CARTE * IConfig.NB_PIX_CASE + 400, 800);
+		fenetre.setSize(IConfig.LARGEUR_CARTE * IConfig.NB_PIX_CASE + 300, IConfig.HAUTEUR_CARTE * IConfig.NB_PIX_CASE+220);
 		fenetre.setLocation(IConfig.POSITION_X, IConfig.POSITION_Y);
 
 		fenetre.setJMenuBar(p.menu);

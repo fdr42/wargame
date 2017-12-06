@@ -39,7 +39,7 @@ public class PanneauJeu extends JPanel implements MouseListener, MouseMotionList
 	 */
 	public Carte carte;
 	public Position souris = new Position(0, 0);// ,posii=new Position(0,0);;
-	public boolean affCasesAction = false, afficheDetails = false, survol = false;
+	public boolean aPortee = false,affCasesAction = false, afficheDetails = false, survol = false;
 	private Position[] portee;
 	Element elemSelect;
 	public JMenuBar menu;
@@ -152,21 +152,25 @@ try {
 		                File fichierSelect = choixFichier.getSelectedFile();
 		                nomFic = fichierSelect.getName();
 					
-					int ouiOuNon = JOptionPane.showConfirmDialog(null, "Etes vous sur de vouloir charger cette partie?",
-							"Attention", JOptionPane.YES_NO_OPTION);
-					if (ouiOuNon == JOptionPane.YES_OPTION) {
+				
 						ObjectInputStream ois;
 						try {
 							ois = new ObjectInputStream(new FileInputStream(nomFic));
 							Lcarte= (int)ois.read();
 							Hcarte= (int)ois.read();
 							Tcase= (int)ois.read();
-							if(carte.verifDim(Lcarte, Hcarte,Tcase)) {
+							if(carte.verifDim(Lcarte, Hcarte,Tcase)) {	int ouiOuNon = JOptionPane.showConfirmDialog(null, "Etes vous sur de vouloir charger cette partie?",
+									"Attention", JOptionPane.YES_NO_OPTION);
+							if (ouiOuNon == JOptionPane.YES_OPTION) {
+								
 							try {
 									carte = (Carte) ois.readObject();
 							} catch (Exception e1) {
 								// TODO Auto-generated catch block
 								e1.printStackTrace();
+							}
+							ois.close();
+							repaint();
 							}
 							}
 								else{
@@ -177,13 +181,14 @@ try {
 									
 							
 							
-							ois.close();
+							
+							
 						} catch (IOException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						} 
 					}
-					}
+					
 				}	
 			});
 			
@@ -193,7 +198,6 @@ try {
 		this.setVisible(true);
 
 		JButton passer = new JButton(new ImageIcon(this.getClass().getResource("/img/passer.png")));
-		passer.setToolTipText("Passer");
 
 		init();
 		passer.addActionListener(new ActionListener() {
@@ -222,11 +226,11 @@ try {
 
 			}
 		});
-
+		
 		this.setLayout(null);
 		passer.setBackground(new Color(0f, .9f, .9f, .0f));
 		menu.add(passer);
-
+		
 	}
 
 	public void init() {
@@ -278,7 +282,7 @@ try {
 		carte.toutDessiner(g);
 
 		g.setColor(Color.white);
-		g.setFont(new Font("TimesRoman ", Font.BOLD, 20));
+		g.setFont(new Font("TimesRoman ", Font.BOLD, 15));
 		g.drawString(carte.toString(), 10, IConfig.HAUTEUR_CARTE * IConfig.NB_PIX_CASE + 50);
 		g.drawString("Vous jouez le tour n°" + carte.tour, 40, IConfig.HAUTEUR_CARTE * IConfig.NB_PIX_CASE + 80);
 		// On ecrit le nombre de heros et monstres en haut
@@ -293,77 +297,59 @@ try {
 
 		}
 
-		if (afficheDetails) { // Si le joueur a selectionné un hero
+		if (afficheDetails)  // Si le joueur a selectionné un hero
 			dessinDetails(g);
-			g.drawString(elemSelect.pos.toString(), posx - 20, posy + 100);
-			g.drawString(elemSelect.toString(), posx + 50, posy + 180);
-		} else
-			g.drawString(toString(), posx - 20, posy + 100);
+		g.drawString(toString(), posx - 20, posy + 80);
+		if(carte.getElement(souris) instanceof Soldat && !aPortee && carte.getElement(souris).estVisible) {
+			String[] text=new String[4];
+			text[0]=((Soldat)carte.getElement(souris)).toString();
+			text[1]="Portee: "+((Soldat)carte.getElement(souris)).getPortee();
+			text[2]="Degats CaC: "+((Soldat)carte.getElement(souris)).getPuissance();
+			text[3]="Degats distant: "+((Soldat)carte.getElement(souris)).getTir();
+			infoBulle(g,text,souris.getX(),souris.getY(),4);
+		}
 	}
 
-	public void dessinAttaque(Graphics g) {
 
-	}
 
 	
 	/**
 	 * affichage des details du jeu. Fonction appelee par paint componenent
 	 */
 	public void dessinDetails(Graphics g) {
-
+		aPortee = false;
+		String[] text;
 		int posx = IConfig.LARGEUR_CARTE * IConfig.NB_PIX_CASE + 50, posy = 200;// Emplacement des details
 		int y, tailleSimul;
 		if (elemSelect instanceof Obstacle && elemSelect.estVisible) {
 			new ImageIcon(this.getClass().getResource("/img/" + ((Obstacle) elemSelect).toString() + ".png"))
-					.paintIcon(this, g, posx + 50, posy - 150);
+					.paintIcon(this, g, posx , posy - 150);
 
 			return;
-		}
-
-		boolean aPortee = false;
-		int i, pvSimul, pvM,
-				pvH = (int) (((float) ((Soldat) elemSelect).getPoints() / ((Soldat) elemSelect).getPointsMax()) * 100
-						- 1);// Pourcentage des pv restants
-		// Affichage de l'image du monstre
-		new ImageIcon(this.getClass().getResource("/img/" + ((Soldat) elemSelect).getType() + ".png")).paintIcon(this,
-				g, posx + 50, posy - 200);
-		// Dessin de la barre de vie
-		new ImageIcon(this.getClass().getResource("/img/COEUR.png")).paintIcon(this, g, posx - 15, posy + 8);
-		g.setColor(Color.gray);
-		g.fillRect(posx - 13, posy - 191, 60, 200);
-		g.setColor(Color.green);
-		g.fillRect(posx - 13, posy - 191 + (200 - pvH * 2), 60, pvH * 2);
+		}else if (elemSelect instanceof Soldat && elemSelect.estVisible) {
+		int i, pvSimul, pvM;
+				
 		g.setColor(Color.white);
-		g.setFont(new Font("TimesRoman ", Font.BOLD, 20));
-
-		// Affichage de la puissance, du tir et de la portée
-		new ImageIcon(this.getClass().getResource("/img/EPEE.png")).paintIcon(this, g, posx + 52, posy + 60);
-		g.drawString("" + ((Soldat) elemSelect).getPuissance(), posx + 70, posy + 145);
-
-		new ImageIcon(this.getClass().getResource("/img/ARC.png")).paintIcon(this, g, posx + 147, posy + 60);
-		g.drawString("" + ((Soldat) elemSelect).getTir(), posx + 165, posy + 145);
-
-		new ImageIcon(this.getClass().getResource("/img/OEUIL.png")).paintIcon(this, g, posx + 242, posy + 60);
-		g.drawString("" + ((Soldat) elemSelect).getPortee(), posx + 260, posy + 145);
-
+		g.setFont(new Font("TimesRoman ", Font.BOLD, 17));
+		dessinImages(g,posx,posy);
 		if (elemSelect instanceof Heros && carte.getElement(souris) instanceof Monstre) {
-			pvM = (int) (((float) ((Monstre) carte.getElement(souris)).getPoints()
-					/ ((Monstre) carte.getElement(souris)).getPointsMax()) * 200 - 1);
+			Monstre monstre =((Monstre) carte.getElement(souris));
+			pvM = (int) (((float) monstre.getPoints() / monstre.getPointsMax()) * 200 - 1);
 			new ImageIcon(
-					this.getClass().getResource("/img/" + ((Monstre) carte.getElement(souris)).getType() + ".png"))
-							.paintIcon(this, g, posx + 50, posy + 250);
-			new ImageIcon(this.getClass().getResource("/img/COEUR.png")).paintIcon(this, g, posx - 15, posy + 450);
+					this.getClass().getResource("/img/" + monstre.getType() + ".png"))
+							.paintIcon(this, g, posx + 50, posy +140);
+			new ImageIcon(this.getClass().getResource("/img/COEUR.png")).paintIcon(this, g, posx - 15, posy + 320);
 			g.setColor(Color.gray);
-			g.fillRect(posx - 13, posy + 250, 60, 200);
+			g.fillRect(posx - 13, posy + 120, 40, 200);
 			g.setColor(Color.green);
-			g.fillRect(posx - 13, posy + 450 - pvM, 60, pvM);
+			g.fillRect(posx - 13, posy + 320 - pvM, 40, pvM);
 			g.setColor(Color.white);
 			for (i = 0; i < ((Soldat) elemSelect).tabPortee.length; i++) {
 				if (((Soldat) elemSelect).tabPortee[i].equals(souris)) {
 					g.setColor(Color.red);
-					g.drawString("VS", posx + 150, posy + 210);
-					new ImageIcon(this.getClass().getResource("/img/vise.png")).paintIcon(this, g, posx + 80,
-							posy + 275);
+					g.drawString("VS", posx + 100, posy + 120);
+					new ImageIcon(this.getClass().getResource("/img/vise.png")).paintIcon(this, g, posx + 60,
+							posy + 155);
 					aPortee = true;
 				}
 			}
@@ -372,33 +358,64 @@ try {
 					pvSimul = ((Heros) elemSelect).getPuissance();
 				else
 					pvSimul = ((Heros) elemSelect).getTir();
+				
 				g.setColor(new Color(.9f, .2f, .2f, .8f));
-				tailleSimul = (int) (((float) pvSimul / ((Monstre) carte.getElement(souris)).getPointsMax()) * 200);
-				y = posy + 450 - pvM;
+				tailleSimul = (int) (((float) pvSimul / monstre.getPointsMax()) * 200);
+				y = posy + 320 - pvM;
 				if (y + tailleSimul > posy + 450)
 					tailleSimul = (posy + 450) - y;
-				g.fillRect(posx - 13, y, 60, tailleSimul);
+				g.fillRect(posx - 13, y, 40, tailleSimul);
 				g.setColor(Color.white);
-				tailleSimul = (((Monstre) carte.getElement(souris)).getPoints() - pvSimul);
+				tailleSimul = (monstre.getPoints() - pvSimul);
+				text=new String[4];
+				text[0]= "Attaquer "+monstre.getType()+" "+monstre.NOM;
+				text[1]=monstre.toString();
+				text[2]="Dégats: "+pvSimul;
+				text[3]="-->(" + tailleSimul + "/"+ monstre.getPointsMax() + ")";
+				infoBulle(g,text,souris.getX(),souris.getY(),4);
 				if (tailleSimul <= 0)
 					tailleSimul = 0;
-				g.drawString(carte.getElement(souris).toString() + "-->(" + tailleSimul + "/"
-						+ ((Monstre) carte.getElement(souris)).getPointsMax() + ")", posx - 25, posy + 245);
 
-			} else
-				g.drawString(carte.getElement(souris).toString(), posx + 50, posy + 250);
+			} 
+			
 
 		} else if (elemSelect instanceof Heros && carte.getElement(souris).estVide()
-				&& elemSelect.pos.estVoisine(souris)) {
-			g.setColor(Color.green);
-			g.drawString("Se deplacer vers", posx + 80, posy + 210);
-			g.setColor(Color.white);
-			g.drawString(souris.toString() + carte.getElement(souris).toString(), posx + 20, posy + 245);
-
+				&& elemSelect.pos.estVoisine(souris) && affCasesAction) {
+			text=new String[1];
+			text[0]="Se deplacer"+souris.toString();
+			infoBulle(g,text,souris.getX(),souris.getY(),1);
+		}
 		}
 		g.setColor(Color.white);
+		
 	}
 	
+	
+	public void dessinImages(Graphics g,int posx, int posy) {
+	int pvH = (int) (((float) ((Soldat) elemSelect).getPoints() / ((Soldat) elemSelect).getPointsMax()) * 100
+				- 1);// Pourcentage des pv restants
+
+
+// Dessin de la barre de vie
+new ImageIcon(this.getClass().getResource("/img/COEUR.png")).paintIcon(this, g, posx - 15, posy + 8);
+g.setColor(Color.gray);
+g.fillRect(posx - 13, posy - 191, 40, 200);
+g.setColor(Color.green);
+g.fillRect(posx - 13, posy - 191 + (200 - pvH * 2), 40, pvH * 2);
+		// Affichage de l'image du soldat
+				new ImageIcon(this.getClass().getResource("/img/" + ((Soldat) elemSelect).getType() + ".png")).paintIcon(this,
+						g, posx + 50, posy - 195);
+				// Affichage de la puissance, du tir et de la portée
+				new ImageIcon(this.getClass().getResource("/img/EPEE.png")).paintIcon(this, g, posx + 32, posy -35);
+				g.drawString("" + ((Soldat) elemSelect).getPuissance(), posx + 50, posy+40 );
+
+				new ImageIcon(this.getClass().getResource("/img/ARC.png")).paintIcon(this, g, posx + 107, posy - 35);
+				g.drawString("" + ((Soldat) elemSelect).getTir(), posx + 125, posy +40);
+
+				new ImageIcon(this.getClass().getResource("/img/OEUIL.png")).paintIcon(this, g, posx + 182, posy -35);
+				g.drawString("" + ((Soldat) elemSelect).getPortee(), posx + 200, posy +40);
+
+	}
 	
 	/**
 	 * Affichage de la portee avec des cases 
@@ -429,6 +446,27 @@ try {
 			}
 
 		g.setColor(Color.black);
+	}
+	
+	
+	
+	public void infoBulle(Graphics g,String[] text,int x, int y,int lignes) {
+		int i=0;
+		int larg=124;
+		if(lignes==1)
+			larg=100;
+		
+		g.setColor(new Color(.2f,.9f,.7f,.8f));
+g.fillRect(20+(1+x)*IConfig.NB_PIX_CASE, (y+1)*IConfig.NB_PIX_CASE+IConfig.NB_PIX_CASE/2, larg, 20*lignes);
+g.setColor(new Color(.2f,.6f,.7f,.4f));
+g.fillRect(22+(x+1)*IConfig.NB_PIX_CASE, (y+1)*IConfig.NB_PIX_CASE+IConfig.NB_PIX_CASE/2+2, larg-4, 20*lignes-4);
+g.setColor(Color.black);
+g.setFont(new Font("TimesRoman ", Font.BOLD, 10));
+while(i!=lignes) {
+	g.drawString(text[i],22+(x+1)*IConfig.NB_PIX_CASE, 17*i+(y+2)*IConfig.NB_PIX_CASE);
+	i++;
+}
+g.setFont(new Font("TimesRoman ", Font.BOLD, 15));
 	}
 	
 	
@@ -475,7 +513,9 @@ try {
 
 	public void mouseMoved(MouseEvent e) {
 		Position pos = new Position((e.getX() - 20) / IConfig.NB_PIX_CASE, (e.getY() - 20) / IConfig.NB_PIX_CASE);
+		
 		if (pos.estValide() && !pos.equals(souris)) {
+			souris = pos;
 			afficheDetails = false;
 			survol = false;
 
@@ -495,7 +535,7 @@ try {
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-
+		
 	}
 
 	public void mouseReleased(MouseEvent e) {
@@ -524,7 +564,6 @@ try {
 	public void mouseEntered(MouseEvent e) {
 
 	}
-	caca
 	@Override
 	public void mouseExited(MouseEvent e) {
 		// TODO Auto-generated method stub

@@ -3,8 +3,8 @@ package wargame;
 import java.awt.Color;
 
 public interface IConfig {
-	int LARGEUR_CARTE = 15;
-	int HAUTEUR_CARTE = 15; // en nombre de cases
+	int LARGEUR_CARTE = 36;
+	int HAUTEUR_CARTE = 20; // en nombre de cases
 	int NB_PIX_CASE = 30;
 	int POSITION_X = 100;
 	int POSITION_Y = 50; // Position de la fenetre
