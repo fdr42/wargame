@@ -323,7 +323,7 @@ try {
 		int y, tailleSimul;
 		if (elemSelect instanceof Obstacle && elemSelect.estVisible) {
 			new ImageIcon(this.getClass().getResource("/img/" + ((Obstacle) elemSelect).toString() + ".png"))
-					.paintIcon(this, g, posx , posy - 150);
+					.paintIcon(this, g, posx-30 , posy - 190);
 
 			return;
 		}else if (elemSelect instanceof Soldat && elemSelect.estVisible) {
