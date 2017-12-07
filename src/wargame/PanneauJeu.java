@@ -306,7 +306,9 @@ try {
 			text[1]="Portee: "+((Soldat)carte.getElement(souris)).getPortee();
 			text[2]="Degats CaC: "+((Soldat)carte.getElement(souris)).getPuissance();
 			text[3]="Degats distant: "+((Soldat)carte.getElement(souris)).getTir();
-			infoBulle(g,text,souris.getX(),souris.getY(),4);
+			infoBulle(g,text,souris.getX(),souris.getY());
+			new ImageIcon(this.getClass().getResource("/img/"+((Soldat)carte.getElement(souris)).getType()+"_icone.png"))
+			.paintIcon(this, g, 140+souris.getX()*IConfig.NB_PIX_CASE, 65+souris.getY()*IConfig.NB_PIX_CASE );
 		}
 	}
 
@@ -319,6 +321,7 @@ try {
 	public void dessinDetails(Graphics g) {
 		aPortee = false;
 		String[] text;
+		String arme;
 		int posx = IConfig.LARGEUR_CARTE * IConfig.NB_PIX_CASE + 50, posy = 200;// Emplacement des details
 		int y, tailleSimul;
 		if (elemSelect instanceof Obstacle && elemSelect.estVisible) {
@@ -372,7 +375,13 @@ try {
 				text[1]=monstre.toString();
 				text[2]="Dégats: "+pvSimul;
 				text[3]="-->(" + tailleSimul + "/"+ monstre.getPointsMax() + ")";
-				infoBulle(g,text,souris.getX(),souris.getY(),4);
+				infoBulle(g,text,souris.getX(),souris.getY());
+				if(souris.estVoisine(elemSelect.pos))
+					arme="EPEE";
+				else
+					arme="ARC";
+					new ImageIcon(this.getClass().getResource("/img/"+arme+"_icone.png"))
+				.paintIcon(this, g, 130+souris.getX()*IConfig.NB_PIX_CASE, 85+souris.getY()*IConfig.NB_PIX_CASE );
 				if (tailleSimul <= 0)
 					tailleSimul = 0;
 
@@ -381,9 +390,13 @@ try {
 
 		} else if (elemSelect instanceof Heros && carte.getElement(souris).estVide()
 				&& elemSelect.pos.estVoisine(souris) && affCasesAction) {
-			text=new String[1];
-			text[0]="Se deplacer"+souris.toString();
-			infoBulle(g,text,souris.getX(),souris.getY(),1);
+			text=new String[2];
+			text[0]="Se deplacer";
+			text[1]="vers "+souris.toString();
+			infoBulle(g,text,souris.getX(),souris.getY());
+			new ImageIcon(this.getClass().getResource("/img/PAS_icone.png"))
+			.paintIcon(this, g, 120+souris.getX()*IConfig.NB_PIX_CASE, 55+souris.getY()*IConfig.NB_PIX_CASE );
+			
 		}
 		}
 		g.setColor(Color.white);
@@ -450,19 +463,19 @@ g.fillRect(posx - 13, posy - 191 + (200 - pvH * 2), 40, pvH * 2);
 	
 	
 	
-	public void infoBulle(Graphics g,String[] text,int x, int y,int lignes) {
+	public void infoBulle(Graphics g,String[] text,int x, int y) {
 		int i=0;
 		int larg=124;
-		if(lignes==1)
-			larg=100;
+		if(text.length<=2)
+			larg=90;
 		
 		g.setColor(new Color(.2f,.9f,.7f,.8f));
-g.fillRect(20+(1+x)*IConfig.NB_PIX_CASE, (y+1)*IConfig.NB_PIX_CASE+IConfig.NB_PIX_CASE/2, larg, 20*lignes);
+g.fillRect(20+(1+x)*IConfig.NB_PIX_CASE, (y+1)*IConfig.NB_PIX_CASE+IConfig.NB_PIX_CASE/2, larg, 20*text.length);
 g.setColor(new Color(.2f,.6f,.7f,.4f));
-g.fillRect(22+(x+1)*IConfig.NB_PIX_CASE, (y+1)*IConfig.NB_PIX_CASE+IConfig.NB_PIX_CASE/2+2, larg-4, 20*lignes-4);
+g.fillRect(22+(x+1)*IConfig.NB_PIX_CASE, (y+1)*IConfig.NB_PIX_CASE+IConfig.NB_PIX_CASE/2+2, larg-4, 20*text.length-4);
 g.setColor(Color.black);
 g.setFont(new Font("TimesRoman ", Font.BOLD, 10));
-while(i!=lignes) {
+while(i!=text.length) {
 	g.drawString(text[i],22+(x+1)*IConfig.NB_PIX_CASE, 17*i+(y+2)*IConfig.NB_PIX_CASE);
 	i++;
 }

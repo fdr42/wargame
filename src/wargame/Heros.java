@@ -13,6 +13,7 @@ public class Heros extends Soldat {
 	 */
 	public String NOM;
 	public TypesH TYPE;
+	
 
 	/**
 	 * Constructeur du hero
@@ -22,7 +23,7 @@ public class Heros extends Soldat {
 	 * @param pos Position du hero
 	 */
 	public Heros(Carte carte, TypesH type, String nom, Position pos) {
-		super(carte, type.getPoints(), type.getPortee(), type.getPuissance(), type.getTir(), pos);
+		super(carte, type.getPoints(), type.getPortee(), type.getPuissance(), type.getTir(), pos,type.getCouleur());
 		NOM = nom;
 		TYPE = type;
 	}
@@ -35,13 +36,18 @@ public class Heros extends Soldat {
 		if (getTour() == carte.tour)
 			couleur = IConfig.COULEUR_HEROS_DEJA_JOUE;
 		else
-			couleur = IConfig.COULEUR_HEROS;
+			couleur = this.getCouleur();
 
 		g.setColor(couleur);
 		g.fillRect(20 + pos.getX() * IConfig.NB_PIX_CASE + 1, pos.getY() * IConfig.NB_PIX_CASE + 21,
 				IConfig.NB_PIX_CASE - 1, IConfig.NB_PIX_CASE - 1);
+		g.setColor(new Color(0,0,255,120));
+		g.fillRect(20 + pos.getX() * IConfig.NB_PIX_CASE + 1, 30 + pos.getY() * IConfig.NB_PIX_CASE + 1,
+				IConfig.NB_PIX_CASE -1, IConfig.NB_PIX_CASE/3);
+		g.fillRect(30 + pos.getX() * IConfig.NB_PIX_CASE + 1, 20 + pos.getY() * IConfig.NB_PIX_CASE + 1,
+				IConfig.NB_PIX_CASE/3, IConfig.NB_PIX_CASE-1);
 		g.setColor(Color.white);
-		g.drawString("" + NOM, 20 + pos.getX() * IConfig.NB_PIX_CASE + IConfig.NB_PIX_CASE / 4,
+		g.drawString("" + NOM, 25 + pos.getX() * IConfig.NB_PIX_CASE + IConfig.NB_PIX_CASE / 4,
 				pos.getY() * IConfig.NB_PIX_CASE + 20 + (IConfig.NB_PIX_CASE - IConfig.NB_PIX_CASE / 3));
 		g.setColor(Color.black);
 		// On affiche le hero avec une couleur dependant du fait qu'il ait joué ou non

@@ -1,5 +1,7 @@
 package wargame;
 
+import java.awt.Color;
+
 public abstract class Soldat extends Element implements ISoldat {
 	/**
 	 * 
@@ -7,12 +9,13 @@ public abstract class Soldat extends Element implements ISoldat {
 	private static final long serialVersionUID = 1L;
 	private final int POINTS_DE_VIE_MAX, PUISSANCE, TIR, PORTEE_VISUELLE;
 	private int pointsDeVie;
+	private final Color COULEUR;
 	public int tour = 0;
 	public final Carte carte;
 	public Position pos;
 	public Position tabPortee[];
 
-	Soldat(Carte carte, int pts, int portee, int puiss, int tir, Position pos) {
+	Soldat(Carte carte, int pts, int portee, int puiss, int tir, Position pos,Color couleur) {
 
 		POINTS_DE_VIE_MAX = pointsDeVie = pts;
 		PORTEE_VISUELLE = portee;
@@ -22,7 +25,7 @@ public abstract class Soldat extends Element implements ISoldat {
 		this.pos = pos;
 		this.vide = false;
 		tabPortee = pos.remplieTab(getPortee());// On initialise les tableaux
-
+		COULEUR=couleur;
 		if (this instanceof Heros)
 			vision();// On rends visible les cases a portée
 
@@ -46,6 +49,9 @@ public abstract class Soldat extends Element implements ISoldat {
 
 	public int getTour() {
 		return tour;
+	}
+	public Color getCouleur() {
+		return COULEUR;
 	}
 
 	public void combat(Soldat soldat) {

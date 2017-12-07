@@ -8,7 +8,7 @@ public interface IConfig {
 	int NB_PIX_CASE = 30;
 	int POSITION_X = 100;
 	int POSITION_Y = 50; // Position de la fenetre
-	int NB_HEROS = 3;
+	int NB_HEROS = 10;
 	int NB_MONSTRES = 5;
 	int NB_OBSTACLES = 10;
 	Color COULEUR_VIDE = Color.white, COULEUR_INCONNU = Color.lightGray;
