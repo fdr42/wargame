@@ -2,7 +2,9 @@ package wargame;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.GradientPaint;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -310,8 +312,22 @@ try {
 			new ImageIcon(this.getClass().getResource("/img/"+((Soldat)carte.getElement(souris)).getType()+"_icone.png"))
 			.paintIcon(this, g, 140+souris.getX()*IConfig.NB_PIX_CASE, 65+souris.getY()*IConfig.NB_PIX_CASE );
 		}
+		 Graphics2D g2d = (Graphics2D) g;
+		 int moitie=(IConfig.NB_PIX_CASE*IConfig.LARGEUR_CARTE-300)/2;	
+		 int calculAllies=(int)(((float)carte.pvAllies/Carte.pvAlliesMax)*moitie);
+		 int calculEnnemis=(int)(((float)carte.pvEnnemis/Carte.pvEnnemisMax)*moitie);
+		 System.out.println(moitie+"  "+(calculAllies-calculEnnemis));
+		    GradientPaint gp1 = new GradientPaint(350, 40+IConfig.HAUTEUR_CARTE*IConfig.NB_PIX_CASE, Color.green, IConfig.NB_PIX_CASE*IConfig.LARGEUR_CARTE-30, IConfig.HAUTEUR_CARTE*IConfig.NB_PIX_CASE+90, Color.red, true);
+		    g.setFont(new Font("TimesRoman ", Font.BOLD, IConfig.LARGEUR_CARTE));
+		    g2d.setPaint(gp1);
+		g2d.fillRect(300, 40+IConfig.HAUTEUR_CARTE*IConfig.NB_PIX_CASE, IConfig.NB_PIX_CASE*IConfig.LARGEUR_CARTE-300, 50);
+		g.setColor(Color.white);
+	    g.drawString("Victoire", 310, IConfig.HAUTEUR_CARTE*IConfig.NB_PIX_CASE+50+IConfig.NB_PIX_CASE);
+	    g.drawString("Defaite", (IConfig.LARGEUR_CARTE-5)*IConfig.NB_PIX_CASE, IConfig.HAUTEUR_CARTE*IConfig.NB_PIX_CASE+50+IConfig.NB_PIX_CASE);
+	    posx=IConfig.NB_PIX_CASE*IConfig.LARGEUR_CARTE-moitie;
+	    g.fillRect(posx-calculAllies+calculEnnemis, 40+IConfig.HAUTEUR_CARTE*IConfig.NB_PIX_CASE, 10, 50);
+		g.setFont(new Font("TimesRoman ", Font.BOLD, 17));
 	}
-
 
 
 	

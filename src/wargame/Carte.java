@@ -21,7 +21,9 @@ public class Carte implements ICarte, Serializable {
 	public int nbHeros = IConfig.NB_HEROS; 
 	public int nbMonstre = IConfig.NB_MONSTRES;
 	public int nbObs = IConfig.NB_OBSTACLES;
-	public int tour = 1; 
+	public int tour = 1,pvAllies,pvEnnemis;
+	public static int pvAlliesMax;
+	public static int pvEnnemisMax; 
 	public int num = 1;
 	public char lettre = 'A';// Compteur de lettres pour les noms des heros
 
@@ -44,6 +46,7 @@ public class Carte implements ICarte, Serializable {
 	
 		int i, j, n = 0;
 		Position pos;
+		Element element;
 		for (i = 0; i < IConfig.LARGEUR_CARTE; i++)
 			for (j = 0; j < IConfig.HAUTEUR_CARTE; j++)
 				videCase(new Position(i, j));
@@ -58,8 +61,9 @@ public class Carte implements ICarte, Serializable {
 		while (n != nbMonstre) {
 			pos = trouvePositionVide();
 			if (pos.getX() > IConfig.LARGEUR_CARTE / 2 && n != nbMonstre) {// On fait comme pour les heros dans la
-																			// partie droite
-				setCase(pos, new Monstre(this, TypesM.getTypeMAlea(), "" + num, pos));
+				element=new Monstre(this, TypesM.getTypeMAlea(), "" + num, pos);															// partie droite
+				setCase(pos, element);
+				pvEnnemisMax=pvEnnemisMax+((Soldat)element).getPointsMax();
 				num++;
 				n++;
 			}
@@ -72,12 +76,14 @@ public class Carte implements ICarte, Serializable {
 				// dans la partie gauche du plateau
 				Heros H = new Heros(this, TypesH.getTypeHAlea(), "" + lettre, pos);
 				setCase(pos, H);
+				pvAlliesMax=pvAlliesMax+((Soldat)H).getPointsMax();
 				lettre++;
 				n++;
 			}
 		}
 
 		num = 0;
+		
 	}
 	
 
@@ -365,6 +371,8 @@ public class Carte implements ICarte, Serializable {
 	 */
 	public void toutDessiner(Graphics g) {
 		int i, j;
+		pvAllies=0;
+		pvEnnemis=0;
 		Element element;
 		for (i = 0; i <= IConfig.HAUTEUR_CARTE; i++)
 			g.drawLine(20, i * IConfig.NB_PIX_CASE + 20, IConfig.LARGEUR_CARTE * IConfig.NB_PIX_CASE + 20,
@@ -376,7 +384,11 @@ public class Carte implements ICarte, Serializable {
 
 				Position pos = new Position(i, j);
 				element = getElement(pos);
+if(element instanceof Heros) 
+	pvAllies=pvAllies+((Soldat)element).getPoints();
 
+else if(element instanceof Monstre) 
+	pvEnnemis=pvEnnemis+((Soldat)element).getPoints();
 				element.recupPos(pos);
 				element.seDessiner(g);
 
@@ -412,6 +424,7 @@ public class Carte implements ICarte, Serializable {
 	}
 
 	
+	
 	@SuppressWarnings("unused")
 	/**
 	 * Point d'entree du jeu. ici on creer la fenetre et le panneau du jeu.
@@ -426,7 +439,6 @@ public class Carte implements ICarte, Serializable {
 		else if (IConfig.LARGEUR_CARTE * IConfig.NB_PIX_CASE < 350)
 			throw new Exception("Le plateau de jeu est trop petit, augmentez la taille des cases ou la largeur");
 
-	
 		// ajoute un listener : ici le listener est cette classe
 
 		JFrame fenetre = new JFrame();
